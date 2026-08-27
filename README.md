@@ -182,6 +182,45 @@ curl http://127.0.0.1:8000/restaurant/booking/tables/ \
      -H "Authorization: Token <token>"
 ```
 
+## Insomnia walkthrough
+
+The endpoints below use this project's actual routes. Note that the **menu API is
+open** and only the **booking API requires a token**.
+
+1. **Register a user** — `POST http://127.0.0.1:8000/auth/users/`, body type **JSON**:
+
+   ```json
+   { "username": "testuser", "password": "TestPass123!" }
+   ```
+
+2. **Obtain a token** — `POST http://127.0.0.1:8000/restaurant/api-token-auth/`,
+   body type **Form / JSON** with `username` and `password`. Copy the `token` value
+   from the response.
+
+3. **View menu items** — `GET http://127.0.0.1:8000/restaurant/menu/` (no auth
+   needed). Use `GET /restaurant/menu/<id>` for a single item.
+
+4. **Mutate the menu** — send `POST` / `PUT` / `DELETE` to `/restaurant/menu/`
+   (or `/restaurant/menu/<id>`) with a JSON body. The menu API is unauthenticated,
+   so no header is required.
+
+5. **Book a table (protected)** — in the request's **Auth** tab (or a manual
+   header) add `Authorization: Token <token>`, then:
+   * `GET  /restaurant/booking/tables/` — list bookings
+   * `POST /restaurant/booking/tables/` with
+     `{ "name": "Test", "no_of_guests": 4, "booking_date": "2026-09-10T18:30:00Z" }`
+   * `PUT` / `PATCH` / `DELETE` `/restaurant/booking/tables/<id>/`
+
+6. **Confirm the guard** — repeat step 5 **without** the `Authorization` header.
+   The booking endpoints must return `401 Unauthorized`.
+
+7. **Log out** — `POST http://127.0.0.1:8000/auth/token/logout/` with the
+   `Authorization: Token <token>` header to invalidate the token.
+
+> In Insomnia's Auth tab, choose **"API Key"** and set the header name to
+> `Authorization` with value `Token <token>`. Do **not** use the "Bearer" option —
+> DRF's `TokenAuthentication` expects the `Token` prefix, not `Bearer`.
+
 ## Running the tests
 
 ```bash
