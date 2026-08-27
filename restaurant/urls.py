@@ -1,7 +1,9 @@
-# define URL route for index() view
+# define URL routes for the restaurant app
 from django.urls import path
 from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('menu/', views.MenuItemsView.as_view()),
+    path('menu/<int:pk>', views.SingleMenuItemView.as_view()),
 ]
